@@ -16,12 +16,50 @@ module Msf
       
       def commands
         {
-          "beef_connect" => "Connect to a remote BeEF server: beef_connect username:password@hostname:port",
+          "beef_connect" => "Connect to a remote BeEF server: beef_connect <beef url> <username> <password>",
+          "beef_disconnect" => "Disconnect from the remote BeEF server",
           "beef_help" => "Get help on all commands"
         }
       end
       
-      def cmd_beef_connect
+      def cmd_beef_connect(*args)
+        if (args[0] == nil or args[0] == "-h" or args[0] == "--help")
+          print_status("  Usage: beef_connect <beef url> <username> <password>")
+          print_status("Examples:")
+          print_status("  beef_connect http://127.0.0.1:3000 beef beef")
+          return
+        end
+        
+        #This is not working yet
+        if not @remotebeef.nil?
+          print_status("You are already connected")
+          return
+        end
+        
+        @remotebeef = BeEF::Remote::Base.new
+        
+        if (@remotebeef.session.authenticate(args[0], args[1],args[2]).nil?)
+          #For some reason, the first attempt always fails, lets sleep for a couple of secs and try again
+          select(nil,nil,nil,2)
+          if (@remotebeef.session.authenticate(args[0], args[1], args[2]).nil?)
+            print_status("Connection failed..")
+            @remotebeef = nil
+          else
+            print_status("Connected to "+args[0])
+          end
+        else
+          print_status("Connected to "+args[0])
+        end
+      end
+      
+      def cmd_beef_disconnect(*args)
+        begin
+          @remotebeef.session.disconnect
+          @remotebeef = nil
+          print_status("You are now disconnected")
+        rescue
+          print_status("You aren't connected")
+        end
       end
       
       def cmd_beef_help(*args)
@@ -34,6 +72,7 @@ module Msf
         tbl << [ "Generic Commands",""]
         tbl << [ "-----------------", "-----------------"]
         tbl << [ "beef_connect", "Connect to a remote BeEF server."]
+        tbl << [ "beef_disconnect", "Disconnect from the remote BeEF server."]
         puts "\n"
         puts tbl.to_s + "\n"
       end
