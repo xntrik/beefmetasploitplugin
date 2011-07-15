@@ -30,20 +30,19 @@ module Msf
           return
         end
         
+        @remotebeef = BeEF::Remote::Base.new if not defined? @remotebeef
+        
         #This is not working yet
-        if not @remotebeef.nil?
+        if not @remotebeef.session.connected.nil?
           print_status("You are already connected")
           return
         end
-        
-        @remotebeef = BeEF::Remote::Base.new
         
         if (@remotebeef.session.authenticate(args[0], args[1],args[2]).nil?)
           #For some reason, the first attempt always fails, lets sleep for a couple of secs and try again
           select(nil,nil,nil,2)
           if (@remotebeef.session.authenticate(args[0], args[1], args[2]).nil?)
             print_status("Connection failed..")
-            @remotebeef = nil
           else
             print_status("Connected to "+args[0])
           end
@@ -54,9 +53,12 @@ module Msf
       
       def cmd_beef_disconnect(*args)
         begin
-          @remotebeef.session.disconnect
-          @remotebeef = nil
-          print_status("You are now disconnected")
+          if @remotebeef.session.connected.nil? 
+            print_status("You aren't connected")
+          else
+            @remotebeef.session.disconnect
+            print_status("You are now disconnected")
+          end
         rescue
           print_status("You aren't connected")
         end
