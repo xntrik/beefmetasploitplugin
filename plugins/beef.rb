@@ -134,9 +134,13 @@ module Msf
         
         print_status("Importing hosts now...")
         
-        hb['hooked-browsers']['online'].each { |x|
-          framework.db.find_or_create_host({:host => x[1]['ip'].to_s ,:os_name => beef_logo_to_os(x[1]['os_icon'].to_s).to_s })
-          print_status("Added " + x[1]['ip'])
+        hb['hooked-browsers']['online'].each{ |x|
+          if x[1]['ip'].to_s == "127.0.0.1" 
+            print_status("Can't add self to db_hosts - skipping this entry")
+          else
+            framework.db.find_or_create_host({:host => x[1]['ip'], :os_name => beef_logo_to_os(x[1]['os_icon'].to_s) })
+            print_status("Added " + x[1]['ip'])
+          end
         }
         
         print_status("Importation complete.")
@@ -167,8 +171,9 @@ module Msf
               'OS'
             ])
         hb['hooked-browsers']['online'].each{ |x|
-          tbl << [x[0].to_s , beef_logo_to_os(x[1]['os_icon'].to_s) , x[1]['ip'].to_s]
+          tbl << [x[0].to_s , x[1]['ip'].to_s, beef_logo_to_os(x[1]['os_icon'].to_s)]
         }
+        puts "\n"
         puts "Currently hooked browsers within BeEF"
         puts "\n"
         puts tbl.to_s + "\n"
