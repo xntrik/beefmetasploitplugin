@@ -1,0 +1,44 @@
+
+   Copyright 2011 Wade Alcorn wade@bindshell.net
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and 
+   limitations under the License.
+
+================================================
+
+Remote BeEF Metasploit Plugin
+
+Version 0.1 - 26th July 2011
+
+1. Installation & Usage
+	a) Copy these files into your metasploit folder (this should copy beef.rb into your msf/plugins/ folder, and the beef/ folder into your msf/lib/ folder)
+	b) Start metasploit
+	c) msf > load beef
+		[*] BeEF Bridge for Metasploit 0.1
+		[+] Type beef_help for a command listing
+		[*] Successfully loaded plugin: beef
+	d) msf > beef_help
+		Command                  Help text
+		-------                  ---------
+		Generic Commands         
+		-----------------        -----------------
+		beef_connect             Connect to a remote BeEF server.
+		beef_disconnect          Disconnect from the remote BeEF server.
+		beef_help                Display this help listing.
+					 
+		Hooked Browser Commands  
+		-----------------        -----------------
+		beef_online              List available hooked browsers and their details.
+		beef_offline             List previously hooked browsers and their details.
+		beef_import              Import available hooked browsers into db_hosts.
+
+	e) If you want to "beef_import", you'll need to db_connect first

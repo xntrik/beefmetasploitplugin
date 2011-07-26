@@ -21,6 +21,7 @@ module Msf
           "beef_help" => "Get help on all commands",
           "beef_import" => "Import available hooked browsers into metasploit",
           "beef_online" => "List available hooked browsers",
+          "beef_offline" => "List previously hooked browsers",
           "beef_test" => "Testing adding a host"
         }
       end
@@ -109,6 +110,7 @@ module Msf
         tbl << [ "Hooked Browser Commands",""]
         tbl << [ "-----------------", "-----------------"]
         tbl << [ "beef_online", "List available hooked browsers and their details."]
+        tbl << [ "beef_offline","List previously hooked browsers and their details."]
         tbl << [ "beef_import", "Import available hooked browsers into db_hosts."]
         puts "\n"
         puts tbl.to_s + "\n"
@@ -175,6 +177,36 @@ module Msf
         }
         puts "\n"
         puts "Currently hooked browsers within BeEF"
+        puts "\n"
+        puts tbl.to_s + "\n"
+      end
+    
+     def cmd_beef_offline(*args)
+        hb = nil
+        begin
+          if @remotebeef.session.connected.nil?
+            print_status("You aren't connected")
+            return
+          else
+            hb = @remotebeef.zombiepoll.hooked
+          end
+        rescue
+          print_status("You don't appear to be connected")
+          return
+        end
+        
+        tbl = Rex::Ui::Text::Table.new(
+          'Columns' => 
+            [
+              'Id',
+              'IP',
+              'OS'
+            ])
+        hb['hooked-browsers']['offline'].each{ |x|
+          tbl << [x[0].to_s , x[1]['ip'].to_s, beef_logo_to_os(x[1]['os_icon'].to_s)]
+        }
+        puts "\n"
+        puts "Previously hooked browsers within BeEF"
         puts "\n"
         puts tbl.to_s + "\n"
       end
