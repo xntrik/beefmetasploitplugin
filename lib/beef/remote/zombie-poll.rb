@@ -65,11 +65,25 @@ class ZombiePoll
     self.hb['hooked-browsers']['online'][id.to_s]['session']
   end
   
+  def getofflinesession(id)
+    if self.hb.nil?
+      self.hooked
+    end
+    self.hb['hooked-browsers']['offline'][id.to_s]['session']
+  end
+    
   def getip(id)
     if self.hb.nil?
       self.hooked
     end
     self.hb['hooked-browsers']['online'][id.to_s]['ip']
+  end
+  
+  def getofflineip(id)
+    if self.hb.nil?
+      self.hooked
+    end
+    self.hb['hooked-browsers']['offline'][id.to_s]['ip']
   end
   
   def getinfo(session)

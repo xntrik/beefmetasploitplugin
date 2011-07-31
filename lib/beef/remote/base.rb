@@ -23,6 +23,12 @@ module Remote
       self.target = id
     end
     
+    def setofflinetarget(id)
+      self.targetsession = self.zombiepoll.getofflinesession(id)
+      self.targetip = "(OFFLINE) " + self.zombiepoll.getofflineip(id)
+      self.target = id
+    end
+    
     def cleartarget
       self.targetsession = nil
       self.target = nil

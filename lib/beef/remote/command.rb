@@ -37,7 +37,18 @@ module Remote
     end
     
     def runmodule(session)
-      resp = self.session.getraw("/ui/modules/commandmodule/new", {"zombie_session"=>session.to_s,"command_module_id"=>self.cmd['id'],"nonce"=>self.session.nonce.to_s})
+      options = {}
+      options.store("zombie_session", session.to_s)
+      options.store("command_module_id", self.cmd['id'])
+      options.store("nonce",self.session.nonce.to_s)
+      
+      if not self.cmd['Data'].nil?
+        self.cmd['Data'].each do |key|
+          options.store("txt_"+key['name'].to_s,key['value'])
+        end
+      end
+      
+      resp = self.session.getraw("/ui/modules/commandmodule/new", options)
       if resp.body == "{success : true}"
         ret = "true"
       else
@@ -46,11 +57,21 @@ module Remote
       ret
     end
     
+    def getcmdexeccount(session,cmdid)
+      json = self.session.getjson("/ui/modules/commandmodule/commands.json", {"zombie_session"=>session.to_s,"command_module_id"=>cmdid,"nonce"=>self.session.nonce.to_s})
+      json['commands'].length
+    end
+    
     def getcmdresponses(session)
       self.session.getjson("/ui/modules/commandmodule/commands.json",{"zombie_session"=>session.to_s,"command_module_id"=>self.cmd['id'],"nonce"=>self.session.nonce.to_s})
     end
     
-    def getindividualresponse() #CF TO DO
+    def getindividualresponse(cmdid)
+      begin
+        return self.session.getjson("/ui/modules/select/command_results.json",{"command_id"=>cmdid})
+      rescue
+        return nil
+      end
     end
     
     protected

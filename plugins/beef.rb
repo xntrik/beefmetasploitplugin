@@ -22,9 +22,15 @@ module Msf
           "beef_import" => "Import available hooked browsers into metasploit",
           "beef_online" => "List available hooked browsers",
           "beef_offline" => "List previously hooked browsers",
-          "beef_test" => "Testing adding a host"
+          "beef_review" => "Review a previously hooked browser",
         }
       end
+      
+      @@beef_review_opts = Rex::Parser::Arguments.new(
+        "-h" => [ false, "Help."],
+        "-i" => [ true, "Display info about the offline hooked browser. \"beef_review -i <id>\""],
+        "-l" => [ true, "List previously executed modules. \"beef_review -l <id>\""],
+        "-r" => [ true, "Review the response from a previously executed command module. \"beef_review -r <id> <command id>\""])
       
       #Thank you Nessus plugin for this!
       def beef_verify_db
@@ -47,17 +53,15 @@ module Msf
           hbos = "Unknown"
         end
 		  end
-		  
-      #TODO: DELETE ME
-      def cmd_beef_test(*args)
-        framework.db.find_or_create_host({:host => "192.168.1.1",:os_name => "Mac OS X"})
-      end
       
       def cmd_beef_connect(*args)
         if (args[0] == nil or args[0] == "-h" or args[0] == "--help")
-          print_status("  Usage: beef_connect <beef url> <username> <password>")
-          print_status("Examples:")
-          print_status("  beef_connect http://127.0.0.1:3000 beef beef")
+          cmd_beef_connect_help
+          return
+        end
+        
+        if args.length != 3
+          cmd_beef_connect_help
           return
         end
         
@@ -81,7 +85,18 @@ module Msf
         end
       end
       
+      def cmd_beef_connect_help
+        print_status("  Usage: beef_connect <beef url> <username> <password>")
+        print_status("Examples:")
+        print_status("  beef_connect http://127.0.0.1:3000 beef beef")
+      end
+      
       def cmd_beef_disconnect(*args)
+        if args[0] == "-h"
+          cmd_beef_disconnect_help
+          return
+        end
+        
         begin
           if @remotebeef.session.connected.nil? 
             print_status("You aren't connected")
@@ -92,6 +107,10 @@ module Msf
         rescue
           print_status("You aren't connected")
         end
+      end
+      
+      def cmd_beef_disconnect_help
+        print_status("Disconnect from the remote BeEF instance")
       end
       
       def cmd_beef_help(*args)
@@ -112,12 +131,18 @@ module Msf
         tbl << [ "beef_online", "List available hooked browsers and their details."]
         tbl << [ "beef_offline","List previously hooked browsers and their details."]
         tbl << [ "beef_import", "Import available hooked browsers into db_hosts."]
+        tbl << [ "beef_review", "Review previously hooked browsers within BeEF."]
         puts "\n"
         puts tbl.to_s + "\n"
       end
 			
       def cmd_beef_import(*args)
         if ! beef_verify_db
+          return
+        end
+        
+        if args[0] == "-h"
+          cmd_beef_import_help
           return
         end
         
@@ -147,6 +172,10 @@ module Msf
         
         print_status("Importation complete.")
         
+      end
+      
+      def cmd_beef_import_help
+        print_status("Import available hooked browsers into db_hosts.")
       end
       
       
@@ -209,6 +238,91 @@ module Msf
         puts "Previously hooked browsers within BeEF"
         puts "\n"
         puts tbl.to_s + "\n"
+      end
+      
+      def cmd_beef_review(*args)
+        if (args[0] == nil or args[0] == "-h")
+          print_status("Listing offline browsers...")
+          cmd_beef_offline
+          cmd_beef_review_help
+          return
+        end
+        
+        if @remotebeef.session.connected.nil?
+          print_status("You aren't connected")
+          return
+        end
+        
+        @@beef_review_opts.parse(args) {|opt, idx, val|
+          case opt
+            when "-i"
+              @remotebeef.setofflinetarget(val)
+              info = @remotebeef.zombiepoll.getinfo(@remotebeef.targetsession)
+              info['results'].each { |x|
+                x['data'].each { |k,v|
+                  print_line(k+ " - "+v)
+                }
+              }
+            when "-l"
+              @remotebeef.setofflinetarget(val)
+              cmds = @remotebeef.command.getcommands(@remotebeef.targetsession)
+              tbl = Rex::Ui::Text::Table.new(
+                'Columns' =>
+                  [
+                    'Command Id',
+                    'Command',
+                    'Execute Count'
+                  ])
+              cmds.each{ |x|
+                x['children'].each{ |y|
+                  tbl << [y['id'].to_s,
+                          x['text'].sub(/\W\(\d.*/,"")+"/"+y['text'].gsub(/[-\(\)]/,"").gsub(/\W+/,"_"),
+                          @remotebeef.command.getcmdexeccount(@remotebeef.targetsession,y['id'])] if @remotebeef.command.getcmdexeccount(@remotebeef.targetsession,y['id']) > 0
+                }
+              }
+              puts "\n"
+              puts "List of previous command modules for this target\n"
+              puts tbl.to_s + "\n"
+            when "-r"
+              @remotebeef.setofflinetarget(args[1])
+              @remotebeef.command.setmodule(args[2])
+              tbl = Rex::Ui::Text::Table.new(
+                'Columns' =>
+                  [
+                    'Response Id',
+                    'Executed Time',
+                    'Response'
+                  ])
+              @remotebeef.command.getcmdresponses(@remotebeef.targetsession)['commands'].each do |resp|
+                indiresp = @remotebeef.command.getindividualresponse(resp['object_id'])
+                respout = ""
+                if indiresp['results'].length == 0 or indiresp == nil
+                  respout = "No response yet"
+                  respdata = ""
+                else
+                  respout = Time.at(indiresp['results'][0]['date'].to_i).to_s
+                  respdata = indiresp['results'][0]['data']['data'].to_s
+                end
+                tbl << [resp['object_id'].to_s,resp['creationdate'],respout]
+                tbl << [respdata,"",""]
+              end
+              puts "\n"
+              puts "List of responses for this command module\n"
+              puts tbl.to_s + "\n"
+              return
+            when "-h"
+              cmd_beef_review_help
+              return
+            else
+              cmd_beef_review_help
+              return
+          end
+        }
+      end
+      
+      def cmd_beef_review_help
+        print_status("Use the \"review\" commands to review previously hooked browsers, and commands executed against them")
+        print @@beef_review_opts.usage()
       end
     end
     

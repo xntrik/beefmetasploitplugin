@@ -17,7 +17,7 @@
 
 Remote BeEF Metasploit Plugin
 
-Version 0.1 - 26th July 2011
+Version 0.1 - 31st July 2011
 
 1. Installation & Usage
 	a) Copy these files into your metasploit folder (this should copy beef.rb into your msf/plugins/ folder, and the beef/ folder into your msf/lib/ folder)
@@ -27,18 +27,20 @@ Version 0.1 - 26th July 2011
 		[+] Type beef_help for a command listing
 		[*] Successfully loaded plugin: beef
 	d) msf > beef_help
-		Command                  Help text
-		-------                  ---------
-		Generic Commands         
-		-----------------        -----------------
-		beef_connect             Connect to a remote BeEF server.
-		beef_disconnect          Disconnect from the remote BeEF server.
-		beef_help                Display this help listing.
-					 
-		Hooked Browser Commands  
-		-----------------        -----------------
-		beef_online              List available hooked browsers and their details.
-		beef_offline             List previously hooked browsers and their details.
-		beef_import              Import available hooked browsers into db_hosts.
+
+	Command                  Help text
+	-------                  ---------
+	Generic Commands         
+	-----------------        -----------------
+	beef_connect             Connect to a remote BeEF server.
+	beef_disconnect          Disconnect from the remote BeEF server.
+	beef_help                Display this help listing.
+				 
+	Hooked Browser Commands  
+	-----------------        -----------------
+	beef_online              List available hooked browsers and their details.
+	beef_offline             List previously hooked browsers and their details.
+	beef_import              Import available hooked browsers into db_hosts.
+	beef_review              Review previously hooked browsers within BeEF.
 
 	e) If you want to "beef_import", you'll need to db_connect first
