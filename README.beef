@@ -20,8 +20,9 @@ Remote BeEF Metasploit Plugin
 Version 0.1 - 31st July 2011
 
 0. Dependencies
-	a) Apart from "metasploit", you'll also need to install the hpricot gem.
+	a) Apart from "metasploit", you'll also need to install the following gems.
 	b) # gem install hpricot
+	c) # gem install json
 
 1. Installation & Usage
 	a) Copy these files into your metasploit folder (this should copy beef.rb into your msf/plugins/ folder, and the beef/ folder into your msf/lib/ folder)
