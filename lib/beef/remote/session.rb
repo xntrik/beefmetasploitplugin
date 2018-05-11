@@ -17,7 +17,17 @@ class Session
   def authenticate(baseuri,username,password)
     self.baseuri = baseuri
     url = self.baseuri+"/ui/authentication/login"
-    resp = Net::HTTP.post_form(URI.parse(url),{'username-cfrm'=>username,'password-cfrm'=>password})
+    uri = URI.parse(url)
+
+    http = Net::HTTP.new(uri.host,uri.port)
+    if uri.scheme.eql? 'https'
+      http.use_ssl = true
+      #http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    end
+
+    req = Net::HTTP::Post.new(URI.parse(url))
+    req.body = "username-cfrm=#{username}&password-cfrm=#{password}"
+    resp = http.request(req)
     
     if resp.body == "{ success : true }"
       self.cookie = resp.response['set-cookie']
@@ -36,6 +46,11 @@ class Session
     uri = URI.parse(url)
 
     http = Net::HTTP.new(uri.host,uri.port)
+    if uri.scheme.eql? 'https'
+      http.use_ssl = true
+      #http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    end
+
     if not opts.nil?
       request = Net::HTTP::Post.new(uri.request_uri)
       request.set_form_data(opts)
@@ -70,5 +85,5 @@ class Session
   attr_writer :nonce
 
 end
-
-end end
+end
+end
