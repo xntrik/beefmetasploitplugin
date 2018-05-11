@@ -123,7 +123,7 @@ module Msf
       end
       
       def cmd_beef_help(*args)
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Columns' =>
             [
               'Command',
@@ -202,7 +202,7 @@ module Msf
           return
         end
         
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Columns' => 
             [
               'Id',
@@ -232,7 +232,7 @@ module Msf
           return
         end
         
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Columns' => 
             [
               'Id',
@@ -285,7 +285,7 @@ module Msf
             if args[2].nil?
               @remotebeef.settarget(val)
               cmds = @remotebeef.command.getcommands(@remotebeef.targetsession)
-              tbl = Rex::Ui::Text::Table.new(
+              tbl = Rex::Text::Table.new(
                 'Columns' =>
                   ['Command Id',
                     'Command',
@@ -305,7 +305,7 @@ module Msf
             else
               @remotebeef.settarget(args[1])
               @remotebeef.command.setmodule(args[2])
-                tbl = Rex::Ui::Text::Table.new(
+                tbl = Rex::Text::Table.new(
                   'Columns' =>
                     [
                       'Response Id',
@@ -334,7 +334,7 @@ module Msf
             if args[2].nil?
               @remotebeef.settarget(args[1])
               cmds = @remotebeef.command.getcommands(@remotebeef.targetsession)
-              tbl = Rex::Ui::Text::Table.new(
+              tbl = Rex::Text::Table.new(
                 'Columns' =>
                   [
                     'Id',
@@ -430,7 +430,7 @@ module Msf
               if args[2].nil?
                 @remotebeef.setofflinetarget(args[1])
                 cmds = @remotebeef.command.getcommands(@remotebeef.targetsession)
-                tbl = Rex::Ui::Text::Table.new(
+                tbl = Rex::Text::Table.new(
                   'Columns' =>
                     [
                       'Command Id',
@@ -451,7 +451,7 @@ module Msf
               else
                 @remotebeef.setofflinetarget(args[1])
                 @remotebeef.command.setmodule(args[2])
-                tbl = Rex::Ui::Text::Table.new(
+                tbl = Rex::Text::Table.new(
                   'Columns' =>
                     [
                       'Response Id',
